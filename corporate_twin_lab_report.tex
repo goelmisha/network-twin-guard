@@ -5,8 +5,9 @@
 
 \documentclass[11pt,a4paper]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{longtable}
 \usepackage{color}
 \usepackage{listings}
@@ -14,6 +15,8 @@
 \usepackage{float}
 \usepackage{amsmath,amssymb}
 \usepackage{enumitem}
+\usepackage{array}
+\usepackage{calc}
 
 \title{Corporate Twin — Pre-Change Network Digital Twin \& Attack-Path Risk Analysis\\
 \vspace{0.5cm} \large Lab Report}
@@ -30,7 +33,7 @@
   network, captures a baseline of routing, reachability, and firewall policy, and
   then simulates candidate changes on a copy of the model. The differential engine
   reports exactly what paths open, what close, and how far an attacker could travel,
-  including a 0–100 risk score, blast-radius footprint, and seven explainable
+  including a 0--100 risk score, blast-radius footprint, and seven explainable
   compliance controls. The platform is designed to run on a Raspberry Pi~5 (4~GB
   ARM64) with no Docker dependency when operating in model-only mode, while also
   supporting full Docker/Containerlab deployment for live capture.
@@ -89,14 +92,16 @@ command timeouts in model-only mode.
     \texttt{allow\_flow}, \texttt{deny\_flow}, \texttt{add\_policy\_rule},
     \texttt{remove\_policy\_rule}, \texttt{set\_link\_state}, \texttt{compromise\_node}.
   \item [Risk scoring] blends four components:
-    \begin{tabular}{@{}lll@{}}
+    \begin{tabularx}{\linewidth}{X X X}
+      \toprule
       Component & Weight & Meaning \\
       \midrule
       Blast radius & 0.40 & Weighted share of the estate reachable from the origin \\
       Zone penetration & 0.25 & Fraction of zones beyond the origin's own zone that were reached \\
       Crown-jewel exposure & 0.25 & Exploitability of the most exposed crown-jewel asset \\
       Path novelty & 0.10 & Share of previously blocked origin paths this change opens \\
-    \end{tabular}
+      \bottomrule
+    \end{tabularx}
     Buckets: HIGH $\ge$ 70, MEDIUM $\ge$ 30, LOW $<$ 30. Every weight and threshold
     is a named constant in \texttt{backend/app/core/risk.py}.
   \item [Exposure widening] A port-agnostic path that widens to every port is flagged
@@ -130,10 +135,10 @@ git clone <this-repo> && cd corporate-twin
 scripts/setup_env.sh          # creates .venv and installs every dependency
 
 # Run the backend (model-only mode; no Docker required)
-scripts/run_backend.sh        # → http://127.0.0.1:8000
+scripts/run_backend.sh        # \rightarrow http://127.0.0.1:8000
 
 # Run the dashboard
-scripts/run_frontend.sh       # → http://127.0.0.1:8501
+scripts/run_frontend.sh       # \rightarrow http://127.0.0.1:8501
 
 # Capture a baseline and validate a change
 curl -s -X POST http://localhost:8000/api/v1/snapshot | jq '.snapshot | {snapshot_id, runtime_mode, reachable_count}'
@@ -148,7 +153,7 @@ curl -s -X POST http://localhost:8000/api/v1/simulate-change \
 \section{Raspberry Pi Compatibility}
 \textbf{Yes -- the project is designed for a Raspberry Pi~5 with 4~GB RAM.}
 
-\begin{tabular}{@{}lll@{}}
+\begin{tabularx}{\linewidth}{X X X}
   \toprule
   \textbf{Feature} & \textbf{Pi~5 / 4~GB relevance} \\
   \midrule
@@ -163,7 +168,7 @@ curl -s -X POST http://localhost:8000/api/v1/simulate-change \
         \texttt{scripts/deploy.sh} work on Pi~5 -- they just take longer (per \texttt{scripts/build\_images.sh}: \\
   & ``On a Raspberry Pi 5 this takes roughly a...''). \\
   \bottomrule
-\end{tabular}
+\end{tabularx}
 
 \textbf{Bottom line:} The core solver, risk engine, diff engine, and all API endpoints work
 without Docker by reading from \texttt{config/model.yaml}. Install the environment and
@@ -178,7 +183,7 @@ Initial commit — Corporate Twin: pre-change network digital twin & attack-path
 
 A platform for validating firewall/security changes before they reach production.
 Captures a network topology baseline, simulates candidate changes, and reports
-exactly what opens/closes/widens, with a 0–100 risk score, blast-radius footprint,
+exactly what opens/closes/widens, with a 0--100 risk score, blast-radius footprint,
 and 7-explainable compliance controls.
 
 Designed to run on a Raspberry Pi 5 (4 GB ARM64) with no Docker dependency when
