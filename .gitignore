@@ -1,0 +1,32 @@
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Platform runtime state ----------------------------------------------
+# Captured baseline snapshots and the simulation history. These are environment
+# specific and are recreated by POST /api/v1/snapshot.
+.twin-state/
+
+# --- Containerlab ---------------------------------------------------------
+# The lab writes its own inventory and wire state next to the topology file.
+clab-*/
+*.clab.yml
+*.clab.yaml
+
+# Generated bootstrap scripts are reproducible from config/model.yaml, but they
+# are committed on purpose so `containerlab deploy` works without running the
+# renderer first. Nothing to ignore here.
+# config/generated/
+
+# --- Editor / OS ----------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/

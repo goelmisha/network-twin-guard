@@ -1,0 +1,53 @@
+---
+# =============================================================================
+# Corporate Twin - Enterprise branch office digital twin (Containerlab)
+# =============================================================================
+# Optimised for ARM64 (Raspberry Pi 5, 4 GB RAM): every node is a lightweight
+# Alpine-based container. No hypervisors, no VM-backed NOS images.
+#
+# Node bootstrap scripts are generated from config/model.yaml (the single
+# source of truth) by `scripts/render_policies.py`. Run that before deploying:
+#
+#   python3 scripts/render_policies.py
+#   containerlab deploy -t corporate-twin.yml
+# =============================================================================
+name: corporate-twin
+
+mgmt:
+  network: corporate-twin-mgmt
+  ipv4-subnet: 172.31.20.0/24
+
+topology:
+  nodes:
+    # --- Zone: perimeter (branch router / firewall) --------------------------
+    perimeter-gateway:
+      kind: linux
+      image: twin-host:latest
+      binds:
+        - config/generated/perimeter-gateway.sh:/bootstrap.sh:ro
+      exec:
+        - sh /bootstrap.sh
+
+    # --- Zone: corp (user workstation) --------------------------------------
+    employee-workstation:
+      kind: linux
+      image: twin-host:latest
+      binds:
+        - config/generated/employee-workstation.sh:/bootstrap.sh:ro
+      exec:
+        - sh /bootstrap.sh
+
+    # --- Zone: data (crown-jewel asset) -------------------------------------
+    database-server:
+      kind: linux
+      image: twin-host:latest
+      binds:
+        - config/generated/database-server.sh:/bootstrap.sh:ro
+      exec:
+        - sh /bootstrap.sh
+
+  links:
+    # corp subnet 10.10.10.0/24
+    - endpoints: ["employee-workstation:eth1", "perimeter-gateway:eth1"]
+    # data subnet 10.10.20.0/24 (isolated L3 segment)
+    - endpoints: ["perimeter-gateway:eth2", "database-server:eth1"]

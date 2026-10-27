@@ -1,0 +1,16 @@
+[theme]
+base = "light"
+primaryColor = "#2f6fed"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f6f9"
+textColor = "#1f2933"
+font = "sans serif"
+
+[server]
+headless = true
+# The dashboard is an internal operator tool; keep the XSRF/CORS defaults but
+# allow file watching only inside the frontend tree to save cycles on a Pi.
+fileWatcherType = "auto"
+
+[browser]
+gatherUsageStats = false

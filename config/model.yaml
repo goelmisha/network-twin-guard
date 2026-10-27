@@ -1,0 +1,156 @@
+# =============================================================================
+# Corporate Twin - declarative network model (SINGLE SOURCE OF TRUTH)
+# =============================================================================
+# This file drives three things, so the platform can never drift:
+#   1. Container bootstrap scripts  -> scripts/render_policies.py
+#   2. The reachability / risk solver -> backend/app/core/*
+#   3. Compliance evaluation          -> backend/app/core/compliance.py
+#
+# Node names, interface names and IP addressing MUST match corporate-twin.yml.
+# The loader validates that correspondence and refuses to start on mismatch.
+# =============================================================================
+
+lab_name: corporate-twin
+
+# --- Security zones ----------------------------------------------------------
+# `tier` models defence-in-depth depth: higher tier == more sensitive.
+zones:
+  perimeter:
+    label: Perimeter / Branch Gateway
+    tier: 1
+    crown_jewel: false
+  corp:
+    label: Corporate User Zone
+    tier: 2
+    crown_jewel: false
+    # End-user endpoints live here, so it is held to a stricter standard than the
+    # infrastructure zones (which legitimately route toward sensitive segments).
+    user_facing: true
+  data:
+    label: Crown-Jewel Data Zone
+    tier: 3
+    crown_jewel: true
+
+# --- Entry points ------------------------------------------------------------
+# Nodes an adversary is assumed to be able to reach or control from outside.
+# Blast-radius analysis fans out from these unless an origin is supplied.
+entrypoints:
+  - employee-workstation
+
+# --- Nodes -------------------------------------------------------------------
+nodes:
+  perimeter-gateway:
+    role: router
+    zone: perimeter
+    criticality: 5
+    ip_forward: true
+    description: Branch edge router / firewall enforcing inter-zone policy.
+    interfaces:
+      - name: eth1
+        address: 10.10.10.1/24
+      - name: eth2
+        address: 10.10.20.1/24
+    default_policies:
+      INPUT: DROP
+      FORWARD: DROP
+      OUTPUT: ACCEPT
+
+  employee-workstation:
+    role: host
+    zone: corp
+    criticality: 2
+    ip_forward: false
+    description: Employee workstation; assumed initial-compromise origin.
+    interfaces:
+      - name: eth1
+        address: 10.10.10.10/24
+    routes:
+      - prefix: 0.0.0.0/0
+        via: 10.10.10.1
+        protocol: static
+        description: Default route toward the branch gateway.
+    default_policies:
+      INPUT: DROP
+      FORWARD: DROP
+      OUTPUT: ACCEPT
+
+  database-server:
+    role: host
+    zone: data
+    criticality: 5
+    ip_forward: false
+    description: Crown-jewel database server holding regulated records.
+    interfaces:
+      - name: eth1
+        address: 10.10.20.50/24
+    routes:
+      - prefix: 0.0.0.0/0
+        via: 10.10.20.1
+        protocol: static
+        description: Default route toward the branch gateway.
+    # NOTE: this host firewall is deliberately left default-ALLOW. It models an
+    # extremely common real-world latent risk: a crown-jewel server that relies
+    # entirely on the upstream gateway for isolation. The platform flags it as a
+    # compliance failure (CTL-002) and quantifies what happens if the single
+    # remaining control is changed -- which is exactly the scenario the demo
+    # change in the README exercises.
+    default_policies:
+      INPUT: ACCEPT
+      FORWARD: DROP
+      OUTPUT: ACCEPT
+
+# --- Declared firewall policy -------------------------------------------------
+# Real iptables syntax. Rendered verbatim into each node's iptables-restore
+# file and parsed by the solver, so what is simulated is what is deployed.
+#
+# Rules are evaluated in order (first match wins), which is why the stateful
+# conntrack rule must always remain first in FORWARD.
+policies:
+  perimeter-gateway:
+    FORWARD:
+      # Return traffic for flows the node has already permitted.
+      - "-m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
+      # Permitted application flow: corp -> data zone on PostgreSQL only.
+      - "-i eth1 -o eth2 -s 10.10.10.0/24 -d 10.10.20.50/32 -p tcp --dport 5432 -j ACCEPT"
+      # Explicit inline denial, retained for audit visibility.
+      - "-i eth1 -o eth2 -s 10.10.10.0/24 -d 10.10.20.50/32 -p tcp --dport 22 -j REJECT"
+    INPUT:
+      # Out-of-band management: SSH only from the designated OOB subnet.
+      - "-p tcp --dport 22 -s 10.10.99.0/24 -j ACCEPT"
+      # ICMP for health probing from the corp zone.
+      - "-i eth1 -p icmp -j ACCEPT"
+
+  employee-workstation:
+    INPUT:
+      - "-m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
+      - "-p icmp -j ACCEPT"
+
+  database-server:
+    INPUT:
+      - "-m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT"
+      # Documents intent, but the chain's default-ACCEPT policy below makes this
+      # rule non-restrictive: any port the gateway forwards is accepted.
+      - "-s 10.10.10.0/24 -p tcp --dport 5432 -j ACCEPT"
+      - "-p icmp -j ACCEPT"
+
+# --- Flows evaluated by the snapshot / differential engine --------------------
+# `dport: null` means "any port", which models an unrestricted permit.
+probe_flows:
+  - name: postgres
+    protocol: tcp
+    dport: 5432
+  - name: ssh
+    protocol: tcp
+    dport: 22
+  - name: smb
+    protocol: tcp
+    dport: 445
+  - name: http
+    protocol: tcp
+    dport: 80
+  - name: icmp
+    protocol: icmp
+    dport: null
+  - name: any-tcp
+    protocol: tcp
+    dport: null

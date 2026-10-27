@@ -1,0 +1,72 @@
+[project]
+name = "corporate-twin"
+version = "1.0.0"
+description = "Pre-change network digital twin and attack-path risk analysis platform"
+requires-python = ">=3.11"
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+# Target 3.11 deliberately: Raspberry Pi OS Bookworm ships Python 3.11, and this
+# platform is designed to run on a Pi 5. Anything newer would exclude stock
+# devices.
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["backend", "frontend", "scripts"]
+extend-exclude = ["config/generated", ".venv", ".twin-state"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake-bugbear
+    "RUF",  # ruff-specific
+    "ISC",  # implicit string concatenation
+    "PYI",  # typing stubs idioms
+]
+ignore = [
+    "E501",   # line length is enforced by the formatter, not the linter
+    "UP042",  # custom str-enum base is intentional; see app/models/enums.py
+    "RUF001", # the dashboard intentionally uses emoji and typographic dashes
+    "RUF002",
+    "RUF003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The Streamlit entry point and CLI wrappers must manipulate sys.path before
+# importing project modules.
+"frontend/app.py" = ["E402"]
+"scripts/*.py" = ["E402"]
+"backend/tests/*" = ["B008"]
+# FastAPI's dependency-injection idiom is a call in a default argument.
+"backend/app/api/**/*.py" = ["B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "components", "api_client"]
+
+# ---------------------------------------------------------------------------
+# Mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+files = ["backend/app"]
+strict = false
+warn_unused_configs = true
+disallow_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend"]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
+markers = ["integration: exercises live Docker/Containerlab (skipped when unavailable)"]
