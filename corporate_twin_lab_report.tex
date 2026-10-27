@@ -10,7 +10,6 @@
 \usepackage{tabularx}
 \usepackage{longtable}
 \usepackage{color}
-\usepackage{listings}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{amsmath,amssymb}
@@ -28,15 +27,15 @@
 \maketitle
 
 \begin{abstract}
-  Corporate Twin is a platform for validating firewall and network security changes
-  before they reach production. It creates a ``digital twin'' of a branch office
-  network, captures a baseline of routing, reachability, and firewall policy, and
-  then simulates candidate changes on a copy of the model. The differential engine
-  reports exactly what paths open, what close, and how far an attacker could travel,
-  including a 0--100 risk score, blast-radius footprint, and seven explainable
-  compliance controls. The platform is designed to run on a Raspberry Pi~5 (4~GB
-  ARM64) with no Docker dependency when operating in model-only mode, while also
-  supporting full Docker/Containerlab deployment for live capture.
+Corporate Twin is a platform for validating firewall and network security changes
+before they reach production. It creates a ``digital twin'' of a branch office
+network, captures a baseline of routing, reachability, and firewall policy, and
+then simulates candidate changes on a copy of the model. The differential engine
+reports exactly what paths open, what close, and how far an attacker could travel,
+including a 0--100 risk score, blast-radius footprint, and seven explainable
+compliance controls. The platform is designed to run on a Raspberry Pi~5 (4~GB
+ARM64) with no Docker dependency when operating in model-only mode, while also
+supporting full Docker/Containerlab deployment for live capture.
 \end{abstract}
 
 \section{Overview}
@@ -66,20 +65,20 @@ The core architecture comprises:
 \section{Project Status}
 The project is \textbf{complete}. Evidence:
 
-\begin{tabular}{@{}ll@{}}
+\begin{tabularx}{\linewidth}{@{} l X @{}}
   \toprule
   \textbf{Aspect} & \textbf{Status} \\
   \midrule
   Tests & 101 tests passed (0 skipped) \\
-  Linting & ruff check all checks passed \\
-  Type checking & mypy success on 35 files \\
-  API & Full FastAPI backend with /api/v1 endpoints \\
+  Linting & \texttt{ruff check} all checks passed \\
+  Type checking & \texttt{mypy} success on 35 files \\
+  API & Full FastAPI backend with \texttt{/api/v1} endpoints \\
   Documentation & Complete README with Quickstart, API reference, design decisions \\
   Modes & Both Docker/Containerlab live mode and model-only mode \\
   Error handling & Standardized error envelopes with machine-readable codes \\
   Configuration & Environment variables with repository-relative defaults \\
   \bottomrule
-\end{tabular}
+\end{tabularx}
 
 All 101 tests pass without a Docker daemon; the runtime is faked at the process
 boundary, exercising real node validation, container-state checks, capture logic, and
@@ -88,13 +87,13 @@ command timeouts in model-only mode.
 \section{Features}
 \begin{description}
   \item [Change types accepted by \texttt{simulate-change}]:
-    \allowbreak\allowbreak
     \texttt{allow\_flow}, \texttt{deny\_flow}, \texttt{add\_policy\_rule},
     \texttt{remove\_policy\_rule}, \texttt{set\_link\_state}, \texttt{compromise\_node}.
   \item [Risk scoring] blends four components:
-    \begin{tabularx}{\linewidth}{X X X}
+
+    \noindent\begin{tabularx}{\linewidth}{>{\hsize=0.8\hsize}X >{\hsize=0.4\hsize}X >{\hsize=1.8\hsize}X}
       \toprule
-      Component & Weight & Meaning \\
+      \textbf{Component} & \textbf{Weight} & \textbf{Meaning} \\
       \midrule
       Blast radius & 0.40 & Weighted share of the estate reachable from the origin \\
       Zone penetration & 0.25 & Fraction of zones beyond the origin's own zone that were reached \\
@@ -102,6 +101,7 @@ command timeouts in model-only mode.
       Path novelty & 0.10 & Share of previously blocked origin paths this change opens \\
       \bottomrule
     \end{tabularx}
+
     Buckets: HIGH $\ge$ 70, MEDIUM $\ge$ 30, LOW $<$ 30. Every weight and threshold
     is a named constant in \texttt{backend/app/core/risk.py}.
   \item [Exposure widening] A port-agnostic path that widens to every port is flagged
@@ -116,7 +116,7 @@ command timeouts in model-only mode.
 \section{Testing}
 The test suite (101 tests) covers:
 \begin{itemize}
-  \item iptables parsing, first-match-wins evaluation, port-interval algebra;
+  \item \texttt{iptables} parsing, first-match-wins evaluation, port-interval algebra;
   \item multi-hop routing, link-state changes, port-set intersection;
   \item risk scoring, blast radius and the differential engine;
   \item full end-to-end HTTP tests through the ASGI application, including error
@@ -125,48 +125,48 @@ The test suite (101 tests) covers:
 
 Verification command:
 \begin{verbatim}
-.venv/bin/ruff check backend frontend scripts && .venv/bin/mypy && .venv/bin/python -m pytest
+.venv/bin/ruff check backend frontend scripts && \
+.venv/bin/mypy && \
+.venv/bin/python -m pytest
 \end{verbatim}
 
 \section{Quickstart}
 \begin{verbatim}
 # Set up the environment
 git clone <this-repo> && cd corporate-twin
-scripts/setup_env.sh          # creates .venv and installs every dependency
+scripts/setup_env.sh        # creates .venv & installs dependencies
 
 # Run the backend (model-only mode; no Docker required)
-scripts/run_backend.sh        # \rightarrow http://127.0.0.1:8000
+scripts/run_backend.sh        # -> http://127.0.0.1:8000
 
 # Run the dashboard
-scripts/run_frontend.sh       # \rightarrow http://127.0.0.1:8501
+scripts/run_frontend.sh       # -> http://127.0.0.1:8501
 
-# Capture a baseline and validate a change
-curl -s -X POST http://localhost:8000/api/v1/snapshot | jq '.snapshot | {snapshot_id, runtime_mode, reachable_count}'
+# Capture baseline and validate a change
+curl -s -X POST http://localhost:8000/api/v1/snapshot | \
+  jq '.snapshot | {snapshot_id, runtime_mode, reachable_count}'
 
 curl -s -X POST http://localhost:8000/api/v1/simulate-change \
   -H 'Content-Type: application/json' \
-  -d '{"change_type":"allow_flow","target_node":"perimeter-gateway","chain":"FORWARD",
-       "src":"10.10.10.0/24","dst":"10.10.20.50","protocol":"tcp",
-       "description":"CHG-1042: reporting integration"}' | jq '.risk.projected | {risk_score, risk_level, blast_radius_pct}'
+  -d '{"change_type":"allow_flow","target_node":
+       "perimeter-gateway","chain":"FORWARD",
+       "src":"10.10.10.0/24","dst":"10.10.20.50",
+       "protocol":"tcp","description":"CHG-1042"}' | \
+  jq '.risk.projected | {risk_score, risk_level, blast_radius_pct}'
 \end{verbatim}
 
 \section{Raspberry Pi Compatibility}
 \textbf{Yes -- the project is designed for a Raspberry Pi~5 with 4~GB RAM.}
 
-\begin{tabularx}{\linewidth}{X X X}
+\begin{tabularx}{\linewidth}{>{\hsize=0.6\hsize}X >{\hsize=1.4\hsize}X}
   \toprule
   \textbf{Feature} & \textbf{Pi~5 / 4~GB relevance} \\
   \midrule
-  Architecture & arm64-optimized; containers are Alpine + iproute2 + iptables ($\sim$25~MB each) \\
+  Architecture & arm64-optimized; containers are Alpine + \texttt{iproute2} + \texttt{iptables} ($\sim$25~MB each) \\
   Python & Targets Python 3.11 deliberately -- ``Raspberry Pi OS Bookworm ships Python 3.11'' \\
-  Mode & Runs \textbf{fully} in model-only mode with no Docker daemon required. The backend validates
-        changes against \texttt{config/model.yaml} only. \\
-  Resource footprint & ``No hypervisors, no VM-backed network OS images, no GNS3/EVE-NG dependency. The backend
-        keeps working with the lab torn down, so a laptop with no Docker daemon can still validate
-        changes against the model.'' (README) \\
-  Lab deployment (optional) & If live containers are desired, \texttt{scripts/build\_images.sh} and
-        \texttt{scripts/deploy.sh} work on Pi~5 -- they just take longer (per \texttt{scripts/build\_images.sh}: \\
-  & ``On a Raspberry Pi 5 this takes roughly a...''). \\
+  Mode & Runs \textbf{fully} in model-only mode with no Docker daemon required. The backend validates changes against \texttt{config/model.yaml} only. \\
+  Resource footprint & ``No hypervisors, no VM-backed network OS images, no GNS3/EVE-NG dependency. The backend keeps working with the lab torn down, so a laptop with no Docker daemon can still validate changes against the model.'' (README) \\
+  Lab deployment (optional) & If live containers are desired, \texttt{scripts/build\_images.sh} and \texttt{scripts/deploy.sh} work on Pi~5 -- they just take longer. \\
   \bottomrule
 \end{tabularx}
 
@@ -179,15 +179,13 @@ immediately on the Pi with no Docker needed.
 Since this repository has no commits yet, a natural initial commit message is:
 
 \begin{verbatim}
-Initial commit — Corporate Twin: pre-change network digital twin & attack-path risk analysis
+Initial commit — Corporate Twin: pre-change network
+digital twin & attack-path risk analysis
 
-A platform for validating firewall/security changes before they reach production.
-Captures a network topology baseline, simulates candidate changes, and reports
-exactly what opens/closes/widens, with a 0--100 risk score, blast-radius footprint,
-and 7-explainable compliance controls.
-
-Designed to run on a Raspberry Pi 5 (4 GB ARM64) with no Docker dependency when
-running in model-only mode. Full Docker/Containerlab lab deployment is optional.
+A platform for validating firewall/security changes before
+production. Captures network baseline, simulates candidate
+changes, and reports what opens/closes/widens, with a
+0--100 risk score and 7 explainable compliance controls.
 \end{verbatim}
 
 \section{Gotchas \& Scope Limits}
@@ -208,20 +206,20 @@ running in model-only mode. Full Docker/Containerlab lab deployment is optional.
 
 \clearpage
 \appendix
-\section{Reference API Endpoints (all under /api/v1)}
-\begin{tabular}{@{}lll@{}}
+\section{Reference API Endpoints (all under \texttt{/api/v1})}
+\begin{tabularx}{\linewidth}{@{} l l X @{}}
   \toprule
-  Method & Path & Purpose \\
+  \textbf{Method} & \textbf{Path} & \textbf{Purpose} \\
   \midrule
-  POST & /snapshot & Capture the pre-change baseline \\
-  POST & /simulate-change & Apply a candidate change or simulate a compromised node \\
-  POST & /analyze-blast-radius & Graph-based reachability analysis with risk score and blast radius \\
-  POST & /rollback & Revert the network state to the pre-change baseline \\
-  GET & /health & Readiness, runtime mode and named checks \\
-  GET & /topology & Nodes, links and zones for map rendering \\
-  GET & /policies & Compiled chains with defaults and rules in order \\
-  GET & /compliance & Compliance score and per-control findings \\
+  POST & \texttt{/snapshot} & Capture the pre-change baseline \\
+  POST & \texttt{/simulate-change} & Apply a candidate change or simulate a compromised node \\
+  POST & \texttt{/analyze-blast-radius} & Graph-based reachability analysis with risk score and blast radius \\
+  POST & \texttt{/rollback} & Revert the network state to the pre-change baseline \\
+  GET & \texttt{/health} & Readiness, runtime mode and named checks \\
+  GET & \texttt{/topology} & Nodes, links and zones for map rendering \\
+  GET & \texttt{/policies} & Compiled chains with defaults and rules in order \\
+  GET & \texttt{/compliance} & Compliance score and per-control findings \\
   \bottomrule
-\end{tabular}
+\end{tabularx}
 
 \end{document}

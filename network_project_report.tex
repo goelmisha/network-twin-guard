@@ -27,28 +27,24 @@
 % TODO: Define the core problem or objective of your small integrated network project.
 % TODO: Specify the domain chosen (e.g., Hospital, University, Smart Home, or Accounts).
 
-% Example placeholder:
-% This project addresses the need for secure, automated network segmentation in a \textbf{[Hospital/University/Smart Home/Accounts]} environment. The core objective is to design and implement a network infrastructure that enables reliable communication between designated zones while enforcing security policies and preventing unauthorized access. Specific challenges include [briefly describe the problem, e.g., "managing traffic between patient wards and administrative offices" / "connecting dormitory networks to campus resources" / "integrating IoT devices in a smart home" / "securing financial data in an accounts system"].
+This project addresses the design and implementation of a secure, integrated network within a chosen domain. The core objective is to establish robust communication infrastructure while enforcing appropriate routing and security controls.
 
 \section{Requirements}
-% TODO: Hardware, software, and technology requirements needed for the network setup.
-% TODO: List the maximum technologies covered in class that are integrated into this project.
-
 % Hardware Requirements:
 \begin{itemize}
-  \item [Computers/Devices:] \textit{[e.g., 2 routers, 1 switch, 10 end-devices]}
-  \item [Network Interfaces:] \textit{[e.g., Gigabit Ethernet ports, Wi-Fi adapters]}
-  \item [Other Hardware:] \textit{[e.g., UPS, access points, IoT sensors]}
+  \item \textbf{Computers/Devices:} \textit{[e.g., 2 routers, 1 switch, 10 end-devices]}
+  \item \textbf{Network Interfaces:} \textit{[e.g., Gigabit Ethernet ports, Wi-Fi adapters]}
+  \item \textbf{Other Hardware:} \textit{[e.g., UPS, access points, IoT sensors]}
 \end{itemize}
 
 % Software Requirements:
 \begin{itemize}
-  \item [Operating Systems:] \textit{[e.g., Ubuntu 22.04, Windows 10, Raspberry Pi OS]}
-  \item [Network Software:] \textit{[e.g., Cisco Packet Tracer, GNS3, Mininet, Wireshark]}
-  \item [Programming Languages/Tools:] \textit{[e.g., Python 3, Socket programming, simulation frameworks]}
+  \item \textbf{Operating Systems:} \textit{[e.g., Ubuntu 22.04, Windows 10, Raspberry Pi OS]}
+  \item \textbf{Network Software:} \textit{[e.g., Cisco Packet Tracer, GNS3, Mininet, Wireshark]}
+  \item \textbf{Programming Languages/Tools:} \textit{[e.g., Python 3, Socket programming, simulation frameworks]}
 \end{itemize}
 
-% Technologies Covered (maximum technologies from class integrated into this project):
+% Technologies Covered:
 \begin{tabularx}{\linewidth}{X X}
   \toprule
   \textbf{Technology} & \textbf{Integration Status} \\
@@ -62,128 +58,58 @@
 \end{tabularx}
 
 \section{Flowchart}
-% TODO: Visual diagram outlining the workflow, architecture, or data flow of the network.
-
-% Include a flowchart here - use \includegraphics{flowchart.png} or draw with TikZ
-% Placeholder for flowchart image:
-% \begin{figure}[h!]
-%   \centering
-%   \includegraphics[width=0.8\textwidth]{images/flowchart.pdf}
-%   \caption{Network workflow and data flow architecture}
-%   \label{fig:flowchart}
-% \end{figure}
-
-% Alternatively, a TikZ diagram placeholder:
-% \begin{center}
-%   \begin{tikzpicture}[node distance=2cm, auto]
-%     % Nodes and edges would go here
-%     \node (start) {Start};
-%     \node (setup) [below of start] {Network Setup};
-%     \node (config) [below of setup] {Configuration};
-%     \node (test) [below of config] {Testing};
-%     \node (result) [below of test] {Result};
-%     \node (end) [below of result] {End};
-%     \path [line] (start) -- (setup);
-%     \path [line] (setup) -- (config);
-%     \path [line] (config) -- (test);
-%     \path [line] (test) -- (result);
-%     \path [line] (result) -- (end);
-%   \end{tikzpicture}
-% \end{center}
+% Visual diagram outlining the workflow, architecture, or data flow of the network.
+\begin{figure}[h!]
+  \centering
+  % \includegraphics[width=0.8\textwidth]{images/flowchart.pdf}
+  \fbox{\rule{0pt}{3cm}\rule{4cm}{0pt}\textit{Insert Flowchart Image Here}}
+  \caption{Network workflow and data flow architecture}
+  \label{fig:flowchart}
+\end{figure}
 
 \section{Connections}
-% TODO: Details on network topology, device interconnections, IP addressing scheme, and routing/firewall rules.
+% Details on network topology, device interconnections, IP addressing scheme, and routing/firewall rules.
 
-% Network Topology:
-% \begin{figure}[h!]
-%   \centering
-%   \includegraphics[width=0.8\textwidth]{images/topology.pdf}
-%   \caption{Network topology diagram}
-%   \label{fig:topology}
-% \end{figure}
+\subsection{IP Addressing Scheme}
+\begin{tabularx}{\linewidth}{l X X}
+  \toprule
+  \textbf{Device} & \textbf{IP Address} & \textbf{Subnet} \\
+  \midrule
+  \textit{[Router]} & \textit{[e.g., 192.168.1.1]} & \textit{[e.g., 255.255.255.0]} \\
+  \textit{[Server]} & \textit{[e.g., 192.168.1.10]} & \textit{[e.g., 255.255.255.0]} \\
+  \textit{[Client 1]} & \textit{[e.g., 192.168.1.20]} & \textit{[e.g., 255.255.255.0]} \\
+  \bottomrule
+\end{tabularx}
 
-% IP Addressing Scheme:
-% \begin{tabular}{lll}
-%   \toprule
-%   \textbf{Device} & \textbf{IP Address} & \textbf{Subnet} \\
-%   \midrule
-%   \textit{[Router]} & \textit{[e.g., 192.168.1.1]} & \textit{[e.g., 255.255.255.0]} \\
-%   \textit{[Server]} & \textit{[e.g., 192.168.1.10]} & \textit{[e.g., 255.255.255.0]} \\
-%   \textit{[Client 1]} & \textit{[e.g., 192.168.1.20]} & \textit{[e.g., 255.255.255.0]} \\
-%   \textit{[Client 2]} & \textit{[e.g., 192.168.1.30]} & \textit{[e.g., 255.255.255.0]} \\
-%   \bottomrule
-% \end{tabular}
-
-% Routing and Firewall Rules:
-% \begin{verbatim}
-% [iptables rules / Cisco configurations / routing table entries]
-% \end{verbatim}
-
-% Example rule format:
-% \begin{verbatim}
-% iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-% iptables -A FORWARD -s 192.168.1.0/24 -d 192.168.2.0/24 -j ACCEPT
-% \end{verbatim}
+\subsection{Routing and Firewall Rules}
+\begin{verbatim}
+# Example rule format:
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A FORWARD -s 192.168.1.0/24 -d 192.168.2.0/24 -j ACCEPT
+\end{verbatim}
 
 \section{Implementation}
-% TODO: Methodology: Details on whether simulation or socket programming was used.
-% TODO: Features: Description of any added checking features or click-only functionalities.
-
-% Methodology:
-% \begin{itemize}
-%   \item \textbf{Approach:} \textit{[e.g., "Network simulation using Mininet" / "Socket programming in Python"]}
-%   \item \textbf{Tools:} \textit{[e.g., "Mininet, Wireshark, Python 3 sockets"]}
-%   \item \textbf{Implementation Steps:}
-%     \begin{enumerate}
-%       \item [1.] \textit{[First step, e.g., "Set up network topology"]}
-%       \item [2.] \textit{[Second step, e.g., "Configure IP addressing"]}
-%       \item [3.] \textit{[Third step, e.g., "Implement firewall rules"]}
-%       \item [4.] \textit{[Fourth step, e.g., "Test connectivity"]}
-%     \end{enumerate}
-% \end{itemize}
-
-% Features:
-% \begin{itemize}
-%   \item \textit{[e.g., "Real-time traffic monitoring"]}
-%   \item \textit{[e.g., "Automated rule validation"]}
-%   \item \textit{[e.g., "Graphical configuration interface"]}
-%   \item \textit{[e.g., "Click-to-apply firewall rules"]}
-% \end{itemize}
+\begin{itemize}
+  \item \textbf{Methodology:} \textit{[e.g., Network simulation using Mininet / Socket programming in Python]}
+  \item \textbf{Checking Features / Click-Only Functionalities:} \textit{[e.g., automated rule validation, real-time traffic monitoring, click-to-apply firewall rules]}
+  \item \textbf{Implementation Steps:}
+    \begin{enumerate}
+      \item Set up network topology.
+      \item Configure IP addressing and routing.
+      \item Implement security and firewall policies.
+      \item Perform validation and testing.
+    \end{enumerate}
+\end{itemize}
 
 \section{Result}
-% TODO: Final outputs, testing validation, and verification that the network and its rules function as expected.
-
-% Testing Results:
-% \begin{tabular}{ll}
-%   \toprule
-%   \textbf{Test Case} & \textbf{Result} \\
-%   \midrule
-%   \textit{[Connectivity test]} & \textit{[Passed / Failed]} \\
-%   \textit{[Security policy test]} & \textit{[Passed / Failed]} \\
-%   \textit{[Performance test]} & \textit{[Passed / Failed]} \\
-%   \bottomrule
-% \end{tabular}
-
-% Verification:
-% \begin{itemize}
-%   \item \textit{[e.g., "Ping tests between all nodes successful"]}
-%   \item \textit{[e.g., "Firewall rules blocking unauthorized access confirmed"]}
-%   \item \textit{[e.g., "Bandwidth measurements within expected ranges"]}
-% \end{itemize}
-
-% Final Output Screenshots/Figures:
-% \begin{figure}[h!]
-%   \centering
-%   \includegraphics[width=0.8\textwidth]{images/final-output.pdf}
-%   \caption{Final network output / test results}
-%   \label{fig:final-output}
-% \end{figure}
-
-% \begin{figure}[h!]
-%   \centering
-%   \includegraphics[width=0.8\textwidth]{images/packet-trace.pdf}
-%   \caption{Packet trace demonstrating data flow}
-%   \label{fig:packet-trace}
-% \end{figure}
+\begin{tabularx}{\linewidth}{X l}
+  \toprule
+  \textbf{Test Case} & \textbf{Result} \\
+  \midrule
+  \textit{[Connectivity test (Ping / Traceroute)]} & \textit{[Passed]} \\
+  \textit{[Security policy / Firewall test]} & \textit{[Passed]} \\
+  \textit{[Application performance test]} & \textit{[Passed]} \\
+  \bottomrule
+\end{tabularx}
 
 \end{document}
